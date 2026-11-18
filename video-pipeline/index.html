@@ -1,0 +1,201 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Cairo;font-weight:700;src:url(fonts/cairo-arabic-700-normal.woff2)}
+@font-face{font-family:Cairo;font-weight:800;src:url(fonts/cairo-arabic-800-normal.woff2)}
+@font-face{font-family:AmiriQ;src:url(fonts/amiri-arabic-400-normal.woff2)}
+@font-face{font-family:Aref;font-weight:700;src:url(fonts/aref-ruqaa-arabic-700-normal.woff2)}
+html{overflow:hidden;width:1080px;height:1920px}*{margin:0;padding:0;box-sizing:border-box}
+body{width:1080px;height:1920px;background:#0E0A07;overflow:hidden;position:relative;font-family:Cairo,sans-serif;color:#F5F1E8}
+canvas{position:absolute;left:0;top:0}
+.t{position:absolute;left:0;width:1080px;text-align:center;opacity:0;white-space:nowrap}
+#hud{position:absolute;top:70px;left:60px;right:60px;height:60px;direction:ltr;unicode-bidi:bidi-override}
+#bar{position:absolute;top:0;left:0;right:0;height:4px;background:rgba(245,241,232,.15)}
+#barf{position:absolute;top:0;right:0;height:4px;background:#E9B949;width:0}
+#lab{position:absolute;top:22px;right:0;font-size:26px;letter-spacing:2px;color:#9a8f7e;font-weight:700}
+#cnt{position:absolute;top:18px;left:0;font-size:30px;color:#E9B949;font-weight:700;direction:ltr;unicode-bidi:bidi-override}
+.gold{color:#E9B949}.red{color:#E5484D}
+.pill{display:inline-block;background:#E5484D;color:#fff;font-weight:700;font-size:40px;padding:10px 38px;border-radius:60px}
+#cap{top:1530px;font-size:92px;font-weight:800;line-height:1.2}
+#cap span.g{color:#E9B949}
+</style></head><body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<div id="hud"><div id="bar"></div><div id="barf"></div><div id="lab">رجاء وتوبة</div><div id="cnt">٠١ / ٠٦</div></div>
+
+<div class="t" id="big" style="top:560px;font-size:360px;font-weight:800;color:#E5484D;line-height:1.1;text-shadow:0 0 60px rgba(229,72,77,.45)">٩٩</div>
+<div class="t" id="big2" style="top:560px;font-size:300px;font-weight:800;color:#E9B949;line-height:1.1;text-shadow:0 0 70px rgba(233,185,73,.5)">١٠٠</div>
+<div class="t" id="title" style="top:1130px;font-size:100px;font-weight:800"></div>
+<div class="t" id="loop" style="top:1010px;font-size:72px;font-weight:800;line-height:1.5">النهاية = <span style="background:#E5484D;padding:2px 30px;border-radius:14px;display:inline-block">المفاجأة</span></div>
+<div class="t" id="nope" style="top:1160px;font-size:84px;font-weight:800;color:#E5484D">«ليست لكَ توبة»</div>
+<div class="t" id="quote" style="top:640px;font-family:Cairo;font-weight:700;font-size:98px;line-height:1.75;color:#E9B949;text-shadow:0 0 40px rgba(233,185,73,.35);white-space:normal;padding:0 70px;direction:rtl">نَعَمْ، وَمَنْ يَحُولُ بَيْنَهُ وَبَيْنَ التَّوْبَةِ؟</div>
+<div class="t" id="ref" style="top:1130px"><span class="pill">صحيح البخاري ٣٤٧٠</span></div>
+<div class="t" id="lbR" style="top:960px;left:720px;width:360px;font-size:44px;font-weight:800;color:#E5484D;white-space:normal;line-height:1.3">أرض السوء</div>
+<div class="t" id="lbL" style="top:960px;left:0px;width:360px;font-size:44px;font-weight:800;color:#E9B949;white-space:normal;line-height:1.3">أرض الصالحين</div>
+<div class="t" id="mid" style="top:1230px;font-size:64px;font-weight:800">في منتصف الطريق…</div>
+<div class="t" id="measure" style="top:1230px;font-size:70px;font-weight:800">قيسوا ما بينهما</div>
+<div class="t" id="shibr" style="top:1130px;font-family:Aref;font-weight:700;font-size:210px;color:#E9B949;text-shadow:0 0 60px rgba(233,185,73,.5);line-height:1.1">بِشِبْر</div>
+<div class="t" id="forg" style="top:1050px;font-family:Aref;font-weight:700;font-size:200px;color:#E9B949;text-shadow:0 0 70px rgba(233,185,73,.6);line-height:1.1">غُفِرَ لَه</div>
+<div class="t" id="cta1" style="top:360px;font-size:84px;font-weight:800;line-height:1.4">أيّ ذنب <span class="gold">تحمله</span> اليوم؟</div>
+<div class="t" id="cta2" style="top:620px;font-size:70px;font-weight:800">اكتب: <span style="background:#E9B949;color:#0E0A07;padding:0 34px;border-radius:18px;display:inline-block">رجعتُ</span></div>
+<div class="t" id="cta3" style="top:1370px;font-size:52px;font-weight:700;color:#F5F1E8;white-space:normal;padding:0 90px;line-height:1.5">وابعتها لحد بيحس إن الباب اتقفل عليه</div>
+<div class="t" id="cap"></div>
+<script src="timeline.js"></script>
+<script>
+const W=1080,H=1920,cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const ease=x=>{x=cl(x);return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2};
+const eo=x=>{x=cl(x);return 1-Math.pow(1-x,3)};
+const win=(t,a,b)=>cl((t-a)/(b-a));
+function rnd(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const R=rnd(7);
+const dots=[...Array(99)].map(()=>({a:R()*6.2832,r:300+R()*190,s:R()*6,sz:5+R()*6}));
+const dust=[...Array(70)].map(()=>({x:R()*W,y:R()*H,s:.4+R()*1.6,sz:1+R()*2.2,p:R()*6}));
+const TL=window.TL; const TOTAL=window.TOTAL; const C=i=>TL[i].cue;
+const CAP=window.CAP; // [{words:[{w,g,t0,t1}]}] flattened chunks with times
+function setT(id,o,y=0,sc=1){const e=$(id);e.style.opacity=o;e.style.transform=`translateY(${y}px) scale(${sc})`}
+function glow(x,y,r,c,a){const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,c.replace('A',a));g.addColorStop(1,c.replace('A',0));ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r)}
+function dot(x,y,r,c){ctx.beginPath();ctx.arc(x,y,r,0,6.2832);ctx.fillStyle=c;ctx.fill()}
+function seg(i,t){const s=TL[i];return {p:cl((t-s.start)/(s.end-s.start)),on:t>=s.start-0.05&&t<=s.end+0.45,t0:s.start,t1:s.end,a:t>=s.start}}
+function render(t){
+ ctx.clearRect(0,0,W,H);
+ // background
+ let g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0E0A07');g.addColorStop(.55,'#120a08');g.addColorStop(1,'#3A0F14');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ const S=TL.map((_,i)=>seg(i,t));
+ // red tint on loop segment
+ const redA=0.28*Math.min(win(t,TL[1].start-.1,TL[1].start+.5),1-win(t,TL[1].end,TL[1].end+.6));
+ if(redA>0){ctx.fillStyle=`rgba(120,10,15,${redA})`;ctx.fillRect(0,0,W,H)}
+ dust.forEach(d=>{const y=(d.y-t*d.s*14+H*4)%H;ctx.fillStyle=`rgba(233,185,73,${.12+.1*Math.sin(t*1.3+d.p)})`;ctx.beginPath();ctx.arc(d.x,y,d.sz,0,6.2832);ctx.fill()});
+ // HUD
+ $('barf').style.width=(1080-120)*cl(t/TOTAL)+'px';
+ // visibility defaults
+ ['big','big2','title','loop','nope','quote','ref','lbR','lbL','mid','measure','shibr','forg','cta1','cta2','cta3'].forEach(i=>setT(i,0));
+ const cx=540,cy=760;
+ // ---- constellation scenes (seg 0..3)
+ const constAlpha= t<TL[3].start? 1 : 1-win(t,TL[3].start,TL[3].start+.9)*.85;
+ const fadeAll = 1-win(t,TL[4].start-.3,TL[4].start+.3);
+ if(fadeAll>0.001){
+  const gather=ease(win(t,C(2).qatala,C(2).mia+.6));
+  glow(cx,cy,520,'rgba(233,185,73,A)',.10*constAlpha*fadeAll);
+  dots.forEach((d,i)=>{
+   const appear=eo(win(t,i*0.018,i*0.018+.35));
+   const rr=d.r+(330-d.r)*gather;
+   const rot=d.a+t*0.03*(i%2?1:-1);
+   const x=cx+Math.cos(rot)*rr, y=cy+Math.sin(rot)*rr*0.95;
+   const tw=.55+.45*Math.sin(t*2+d.s);
+   const col=gather>.98?'rgba(233,185,73,':'rgba(229,72,77,';
+   const a=(0.35+0.65*tw)*appear*constAlpha*fadeAll;
+   glow(x,y,d.sz*4,col+'A)',a*.35);dot(x,y,d.sz*.7,col+a+')');
+  });
+  // 100th dot
+  const dd=ease(win(t,C(2).mia-.1,C(2).mia+.5));
+  if(dd>0){const y=-60+(cy-330*.95+60)*dd;glow(cx,y,50,'rgba(229,72,77,A)',.6*fadeAll);dot(cx,y,10,`rgba(245,241,232,${fadeAll})`)}
+ }
+ // number
+ const n99=S[0].a? eo(win(t,TL[0].start,TL[0].start+.6)):0;
+ const shake=t<TL[0].start+.9?Math.sin(t*60)*4*(1-win(t,TL[0].start+.4,TL[0].start+.9)):0;
+ let n99a=n99*(1-win(t,C(2).mia+.3,C(2).mia+.7))*(1-win(t,TL[3].start,TL[3].start+.5));
+ setT('big',n99a,shake,1+.12*(1-n99));
+ const n100=eo(win(t,C(2).mia+.6,C(2).mia+1.3))*(1-win(t,TL[3].start-.1,TL[3].start+.5));
+ setT('big2',n100,0,1+.1*(1-n100));
+ // title words
+ const tt=$('title');
+ if(t>=C(0).maa&&t<TL[1].start+0.3){
+   tt.innerHTML='توبتُه '+(t>=C(0).qub-.05?'<span style="font-family:Aref;font-weight:700;color:#E9B949;font-size:130px">قُبِلَت</span>':'');
+   setT('title',eo(win(t,C(0).maa,C(0).maa+.4))*(1-win(t,TL[1].start-.1,TL[1].start+.3)),0);
+ }
+ // loop
+ setT('loop',eo(win(t,TL[1].start+.9,TL[1].start+1.5))*(1-win(t,TL[1].end+.2,TL[1].end+.6)),0);
+ // red ring in loop
+ if(S[1].on){const a=Math.min(win(t,TL[1].start,TL[1].start+.5),1-win(t,TL[1].end,TL[1].end+.5));ctx.strokeStyle=`rgba(229,72,77,${.8*a})`;ctx.lineWidth=6;ctx.beginPath();ctx.arc(cx,cy,300+8*Math.sin(t*3),0,6.2832);ctx.stroke()}
+ // nope
+ setT('nope',eo(win(t,C(2).nope,C(2).nope+.5))*(1-win(t,C(2).nope+1.6,C(2).nope+2.0)),0,.0);
+ // quote
+ const qA=eo(win(t,C(3).quote,C(3).quote+.7))*(1-win(t,TL[4].start-.2,TL[4].start+.4));
+ if(qA>0){glow(cx,820,560,'rgba(233,185,73,A)',.22*qA)}
+ setT('quote',qA,(1-eo(win(t,C(3).quote,C(3).quote+.7)))*30,1);
+ setT('ref',eo(win(t,C(3).ref,C(3).ref+.5))*(1-win(t,TL[4].start-.2,TL[4].start+.4)),0);
+ // ---- road scenes (seg 4,5,6)
+ const roadA=eo(win(t,TL[4].start,TL[4].start+.8))*(1-win(t,TL[6].start+.8,TL[6].start+1.4));
+ if(roadA>0.001){
+  const y=900, xr=900, xl=180;
+  const prog=ease(win(t,C(4).kharaja,C(4).mawt));
+  const dx=xr-(xr-xl)*0.5*prog*(t<TL[5].start?1:1);
+  const final=t<TL[5].start?dx:(540-20*ease(win(t,C(5).qisu,C(5).qisu+1.5)));
+  const px=t<TL[5].start?dx:final;
+  ctx.strokeStyle=`rgba(245,241,232,${.25*roadA})`;ctx.lineWidth=4;ctx.setLineDash([2,16]);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(xr,y);ctx.lineTo(xl,y);ctx.stroke();ctx.setLineDash([]);
+  // nodes
+  const nr=44+4*Math.sin(t*2);
+  glow(xr,y,140,'rgba(229,72,77,A)',.35*roadA);glow(xl,y,140,'rgba(233,185,73,A)',.45*roadA);
+  ctx.lineWidth=6;ctx.strokeStyle=`rgba(229,72,77,${roadA})`;ctx.beginPath();ctx.arc(xr,y,nr,0,6.2832);ctx.stroke();
+  ctx.strokeStyle=`rgba(233,185,73,${roadA})`;ctx.beginPath();ctx.arc(xl,y,nr,0,6.2832);ctx.stroke();
+  dot(xr,y,14,`rgba(229,72,77,${roadA})`);dot(xl,y,14,`rgba(233,185,73,${roadA})`);
+  setT('lbR',roadA*eo(win(t,TL[4].start+.2,TL[4].start+.8)),0);setT('lbL',roadA*eo(win(t,C(4).qawm,C(4).qawm+.5)),0);
+  // traveller
+  const pulse=t>C(4).mawt?Math.max(0,Math.sin((t-C(4).mawt)*4)):0;
+  glow(px,y,90+30*pulse,'rgba(233,185,73,A)',.7*roadA);dot(px,y,20,`rgba(245,241,232,${roadA})`);
+  setT('mid',roadA*eo(win(t,C(4).mawt-.1,C(4).mawt+.4))*(1-win(t,TL[5].start-.2,TL[5].start+.3)),0);
+  // measure (seg5)
+  const m=eo(win(t,C(5).qisu+.3,C(5).qisu+2.3));
+  if(m>0){
+    const lx=px-30*m, rx=px+30*m;
+    // red line to right node, gold line to left node
+    const ry=y+230, ly=y+230;
+    ctx.lineWidth=6;ctx.lineCap='round';
+    ctx.strokeStyle=`rgba(229,72,77,${.9*m*roadA})`;ctx.beginPath();ctx.moveTo(px,ry);ctx.lineTo(px+(xr-px)*m,ry);ctx.stroke();
+    ctx.strokeStyle=`rgba(233,185,73,${.9*m*roadA})`;ctx.beginPath();ctx.moveTo(px,ly);ctx.lineTo(px-(px-xl)*m,ly);ctx.stroke();
+    for(let k=0;k<=12;k++){const f=k/12;if(f<=m){ctx.strokeStyle=`rgba(229,72,77,${.8*roadA})`;ctx.lineWidth=3;const xx=px+(xr-px)*f;ctx.beginPath();ctx.moveTo(xx,ry-14);ctx.lineTo(xx,ry+14);ctx.stroke();
+      ctx.strokeStyle=`rgba(233,185,73,${.8*roadA})`;const x2=px-(px-xl)*f;ctx.beginPath();ctx.moveTo(x2,ly-14);ctx.lineTo(x2,ly+14);ctx.stroke()}}
+  }
+  setT('measure',roadA*eo(win(t,C(5).qisu,C(5).qisu+.6))*(1-win(t,TL[6].start-.2,TL[6].start+.3)),0);
+  // span highlight (seg6)
+  const sp=eo(win(t,C(6).shibr,C(6).shibr+.8));
+  if(sp>0){
+    const a=sp*(1-win(t,TL[6].end-.4,TL[6].end+.4)*0);
+    ctx.fillStyle=`rgba(233,185,73,${.25*a})`;ctx.fillRect(px,y-40,20,80);
+    ctx.strokeStyle=`rgba(233,185,73,${a})`;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(px,y-60);ctx.lineTo(px,y-110);ctx.lineTo(px+20,y-110);ctx.lineTo(px+20,y-60);ctx.stroke();
+    glow(px+10,y-110,120,'rgba(233,185,73,A)',.5*a);
+  }
+ }
+ setT('shibr',eo(win(t,C(6).shibr,C(6).shibr+.6))*(1-win(t,C(6).ghufira,C(6).ghufira+.4)),0,1.0);
+ // forgiven burst
+ const fg=eo(win(t,C(6).ghufira,C(6).ghufira+.8));
+ const fgOut=1-win(t,TL[7].start-.3,TL[7].start+.4);
+ if(fg>0&&fgOut>0){
+  glow(cx,860,600*fg,'rgba(233,185,73,A)',.45*fg*fgOut);
+  ctx.save();ctx.translate(cx,860);ctx.rotate(t*.15);
+  for(let k=0;k<16;k++){ctx.rotate(6.2832/16);ctx.strokeStyle=`rgba(233,185,73,${.55*fg*fgOut})`;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(130*fg,0);ctx.lineTo((220+60*(k%2))*fg,0);ctx.stroke()}
+  ctx.restore();
+  // star
+  ctx.save();ctx.translate(cx,860);ctx.fillStyle=`rgba(255,235,170,${fg*fgOut})`;ctx.beginPath();for(let k=0;k<8;k++){const a=k*Math.PI/4,r=k%2?26:80*fg;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.fill();ctx.restore();
+ }
+ setT('forg',fg*fgOut,0,1);
+ // ---- CTA (seg7)
+ const c1=eo(win(t,TL[7].start+.1,TL[7].start+.8));
+ setT('cta1',c1,(1-c1)*30);
+ const c2=eo(win(t,C(7).iktub,C(7).iktub+.6));
+ setT('cta2',c2,(1-c2)*30);
+ setT('cta3',eo(win(t,C(7).ursil,C(7).ursil+.7)),0);
+ if(c1>0){
+  // crescent
+  const ca=c1;ctx.fillStyle=`rgba(233,185,73,${ca})`;ctx.beginPath();ctx.arc(cx,250,70,0,6.2832);ctx.fill();ctx.globalCompositeOperation='destination-out';ctx.beginPath();ctx.arc(cx+30,236,64,0,6.2832);ctx.fill();ctx.globalCompositeOperation='source-over';
+  // grid of 6
+  const ga=eo(win(t,C(7).iktub-.4,C(7).iktub+.4));
+  for(let i=0;i<6;i++){
+    const gx=270+(i%3)*270, gy=1000+Math.floor(i/3)*210;
+    const lit=i===0?eo(win(t,C(7).ursil,C(7).ursil+.8)):0;
+    glow(gx,gy,120,'rgba(233,185,73,A)',.5*lit*ga);
+    ctx.lineWidth=5;ctx.strokeStyle=`rgba(233,185,73,${(.35+.65*lit)*ga})`;ctx.beginPath();ctx.arc(gx,gy,70,0,6.2832);ctx.stroke();
+    if(lit>0){ctx.fillStyle=`rgba(233,185,73,${.9*lit*ga})`;ctx.beginPath();ctx.arc(gx,gy,70,0,6.2832);ctx.fill()}
+    ctx.font='800 58px Cairo';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=lit>.5?'#0E0A07':`rgba(245,241,232,${.7*ga})`;ctx.fillText('٠١٠٢٠٣٠٤٠٥٠٦'.slice(i*2,i*2+2),gx,gy+4);
+  }
+ }
+ // ---- caption
+ let capHTML='';
+ for(const c of CAP){ if(t>=c.t0&&t<c.t1+0.05){ capHTML=c.words.map(w=>w.g?`<span class="g">${w.w}</span>`:w.w).join(' '); break } }
+ const ce=$('cap');ce.innerHTML=capHTML;ce.style.opacity=capHTML?1:0;
+ // fade in/out global
+ const gfade=Math.min(win(t,0,.25),1-win(t,TOTAL-.4,TOTAL));
+ document.body.style.opacity=gfade;
+}
+window.render=render;
+</script></body></html>
